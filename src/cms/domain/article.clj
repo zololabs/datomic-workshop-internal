@@ -42,3 +42,10 @@
          vector
          (api/transact db/CONN)
          deref)))
+
+(defn siblings [ar]
+  (->> ar
+       :author/_articles
+       first
+       :author/articles
+       (map api/touch)))
