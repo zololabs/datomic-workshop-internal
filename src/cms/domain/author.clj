@@ -1,6 +1,7 @@
 (ns cms.domain.author
   (:require [datomic.api :as api]
-            [cms.datomic.core :as db]))
+            [cms.datomic.core :as db]
+            [cms.domain.article :as ar]))
 
 (defn create [name email]
   (->> {:author/name name
@@ -32,3 +33,10 @@
        vector
        (api/transact db/CONN)
        deref))
+
+(defn add-article [author title body category]
+  (let [a (ar/create title body category)]
+    (->> [:db/add (:db/id author) :author/articles (:db/id a)]
+         vector
+         (api/transact db/CONN)
+         deref)))
