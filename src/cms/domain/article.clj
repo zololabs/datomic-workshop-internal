@@ -31,7 +31,13 @@
          deref)))
 
 (defn update-tags [ar new-tag-names]
-  (let [tags (map tag/create new-tag-names)]
+  (->> [:db/retract (:db/id ar) :article/tags (map :db/id (:article/tags ar))]
+       vector
+       (api/transact db/CONN)
+       deref)
+
+  (let [tags (doall (map tag/create new-tag-names))]
+    (println "Updating tags")
     (->> [:db/add (:db/id ar) :article/tags (map :db/id tags)]
          vector
          (api/transact db/CONN)

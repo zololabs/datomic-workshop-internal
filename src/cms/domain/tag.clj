@@ -16,3 +16,8 @@
     (->> tag-id
          (api/entity db-after)
          api/touch)))
+
+(defn find-all []
+  (->> (api/q '[:find ?e :where [?e :tag/name]] (api/db db/CONN))
+       (map #(api/entity (api/db db/CONN) (first %)))
+       (map api/touch)))
