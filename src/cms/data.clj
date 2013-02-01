@@ -1,8 +1,9 @@
 (ns cms.data
-  (:require [cms.domain.author :as a]
+  (:require [cms.domain.author :as au]
             [cms.domain.article :as ar]))
 
 
 (defn setup []
-  (a/create "Siva" "s@e.com")
-  (a/create "Amit" "a@e.com"))
+  (au/create "Siva" "s@e.com")
+  (au/create "Amit" "a@e.com")
+  (au/add-article-with-tags (au/find-by-email "s@e.com") "Datomic Workshop" "Datomic is cool" :category/tech ["database" "logic"]))

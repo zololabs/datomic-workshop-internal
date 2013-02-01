@@ -29,3 +29,10 @@
          vector
          (api/transact db/CONN)
          deref)))
+
+(defn update-tags [ar new-tag-names]
+  (let [tags (map tag/create new-tag-names)]
+    (->> [:db/add (:db/id ar) :article/tags (map :db/id tags)]
+         vector
+         (api/transact db/CONN)
+         deref)))
