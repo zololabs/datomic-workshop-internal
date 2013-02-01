@@ -46,3 +46,14 @@
   (let [article (add-article author title body category)]
     (doseq [t tag-names]
       (ar/add-tag article t))))
+
+
+(defn stats-for-author [a]
+  (-> a
+      (select-keys (keys a))
+      (assoc :count (count (:author/articles a)))
+      (dissoc :author/articles)))
+
+(defn stats []
+  (->> (find-all)
+       (map stats-for-author)))
