@@ -49,3 +49,14 @@
        first
        :author/articles
        (map api/touch)))
+
+(defn find-by-tags [tag-names]
+  (let [db (api/db db/CONN)]
+    (->> (api/q '[:find ?a
+                  :in $ [?n ...]
+                  :where
+                  [?a :article/tags ?t]
+                  [?t :tag/name ?n]]
+                db tag-names)
+         (map #(api/entity db (first %)))
+         (map api/touch))))
