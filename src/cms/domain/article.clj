@@ -1,6 +1,7 @@
 (ns cms.domain.article
   (:require [datomic.api :as api]
-            [cms.datomic.core :as db]))
+            [cms.datomic.core :as db]
+            [cms.domain.tag :as tag]))
 
 (defn create [title body category]
   (let [t (api/tempid :db.part/user)
@@ -22,20 +23,9 @@
        (map #(api/entity (api/db db/CONN) (first %)))
        (map api/touch)))
 
-;; (defn find-by-email [email]
-;;   (->> (api/q '[:find ?e :in $ ?email :where [?e :article/email ?email]] (api/db db/CONN) email)
-;;        (map #(api/entity (api/db db/CONN) (first %)))
-;;        (map api/touch)
-;;        first))
-
-;; (defn update [a name]
-;;   (->> [:db/add (:db/id a) :article/name name]
-;;        vector
-;;        (api/transact db/CONN)
-;;        deref))
-
-;; (defn delete [a]
-;;   (->> [:db.fn/retractEntity (:db/id a)]
-;;        vector
-;;        (api/transact db/CONN)
-;;        deref))
+(defn add-tag [ar tag-name]
+  (let [t (tag/create tag-name)]
+    (->> [:db/add (:db/id ar) :article/tags (:db/id t)]
+         vector
+         (api/transact db/CONN)
+         deref)))

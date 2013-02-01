@@ -52,17 +52,33 @@
     :db/cardinality :db.cardinality/one
     :db/doc "A article category enum value"
     :db.install/_attribute :db.part/db}
-   
-   ])
+
+   ;; tags
+   {:db/id #db/id[:db.part/db]
+    :db/ident :article/tags
+    :db/valueType :db.type/ref
+    :db/cardinality :db.cardinality/many
+    :db/doc "A article's tags"
+    :db.install/_attribute :db.part/db}])   
 
 (def category-enum-schema
   [[:db/add #db/id[:db.part/user] :db/ident :category/tech]
    [:db/add #db/id[:db.part/user] :db/ident :category/business]
    [:db/add #db/id[:db.part/user] :db/ident :category/fun]])
 
+(def tag-schema
+  [;; name
+   {:db/id #db/id[:db.part/db]
+    :db/ident :tag/name
+    :db/unique :db.unique/identity
+    :db/valueType :db.type/string
+    :db/cardinality :db.cardinality/one
+    :db/doc "A tag's name"
+    :db.install/_attribute :db.part/db}])
 
 (defn all []
   (concat 
    author-schema
+   tag-schema
    article-schema
    category-enum-schema))
