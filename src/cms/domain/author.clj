@@ -1,42 +1,29 @@
 (ns cms.domain.author
   (:require [datomic.api :as api]
+            [zolodeck.demonic.core :as demonic]
             [cms.datomic.core :as db]
             [cms.domain.article :as ar]))
 
 (defn create [name email]
-  (->> {:author/name name
-        :author/email email
-        :db/id (api/tempid :db.part/user)}
-       vector
-       (api/transact db/CONN)
-       deref))
+  (-> {:author/name name :author/email email}
+      demonic/insert))
 
 (defn find-all []
-  (->> (api/q '[:find ?e :where [?e :author/email]] (api/db db/CONN))
-       (map #(api/entity (api/db db/CONN) (first %)))
-       (map api/touch)))
+  (->> (demonic/run-query '[:find ?e :where [?e :author/email]])
+       (map #(demonic/load-entity (first %)))))
 
 (defn find-by-email [email]
-  (->> (api/q '[:find ?e :in $ ?email :where [?e :author/email ?email]] (api/db db/CONN) email)
-       (map #(api/entity (api/db db/CONN) (first %)))
-       (map api/touch)
+  (->> (demonic/run-query '[:find ?e :in $ ?email :where [?e :author/email ?email]] email)
+       (map #(demonic/load-entity (first %)))
        first))
 
 (defn update [a name]
-  (->> [:db/add (:db/id a) :author/name name]
-       vector
-       (api/transact db/CONN)
-       deref))
+  (-> (assoc a :author/name name)
+      demonic/insert))
 
 (defn delete [a]
-  (->> [:db.fn/retractEntity (:db/id a)]
-       vector
-       (api/transact db/CONN)
-       deref))
+  (demonic/delete a))
 
 (defn add-article [author title body category]
-  (let [a (ar/create title body category)]
-    (->> [:db/add (:db/id author) :author/articles (:db/id a)]
-         vector
-         (api/transact db/CONN)
-         deref)))
+  (->> {:article/title title :article/body body :article/category category}
+       (demonic/append-single author :author/articles)))

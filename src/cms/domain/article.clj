@@ -1,26 +1,11 @@
 (ns cms.domain.article
   (:require [datomic.api :as api]
-            [cms.datomic.core :as db]))
-
-(defn create [title body category]
-  (let [t (api/tempid :db.part/user)
-        a {:article/title title
-           :article/body body
-           :article/category category
-           :db/id t}
-        {:keys [db-after tempids]} (->> a
-                                        vector
-                                        (api/transact db/CONN)
-                                        deref)
-        ar-id (api/resolve-tempid db-after tempids t)]
-    (->> ar-id
-         (api/entity db-after)
-         api/touch)))
+            [cms.datomic.core :as db]
+            [zolodeck.demonic.core :as demonic]))
 
 (defn find-all []
-  (->> (api/q '[:find ?e :where [?e :article/title]] (api/db db/CONN))
-       (map #(api/entity (api/db db/CONN) (first %)))
-       (map api/touch)))
+  (->> (demonic/run-query '[:find ?e :where [?e :article/title]])
+       (map #(demonic/load-entity (first %)))))
 
 ;; (defn find-by-email [email]
 ;;   (->> (api/q '[:find ?e :in $ ?email :where [?e :article/email ?email]] (api/db db/CONN) email)

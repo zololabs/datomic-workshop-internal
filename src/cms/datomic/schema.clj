@@ -1,65 +1,23 @@
 (ns cms.datomic.schema
+  (:use zolodeck.demonic.schema)
   (:require [datomic.api :as db]))
 
 (def author-schema
-  [;; name
-   {:db/id #db/id[:db.part/db]
-    :db/ident :author/name
-    :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one
-    :db/doc "A author's name"
-    :db.install/_attribute :db.part/db}
-
-   ;; email
-   {:db/id #db/id[:db.part/db]
-    :db/ident :author/email
-    :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one
-    :db/doc "A author's email"
-    :db.install/_attribute :db.part/db}
-
-   ;; articles
-   {:db/id #db/id[:db.part/db]
-    :db/ident :author/articles
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/many
-    :db/doc "A author's article"
-    :db.install/_attribute :db.part/db}])
+  [(uuid-fact-schema :author/guid false "A author's guid" false)
+   (string-fact-schema :author/name false "A author's name" false)
+   (string-fact-schema :author/email false "A author's email" false)
+   (refs-fact-schema :author/articles false "A author's articles" false)])
 
 (def article-schema
-  [;; title
-   {:db/id #db/id[:db.part/db]
-    :db/ident :article/title
-    :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one
-    :db/fulltext true
-    :db/doc "A article's title"
-    :db.install/_attribute :db.part/db}
-
-   ;; body
-   {:db/id #db/id[:db.part/db]
-    :db/ident :article/body
-    :db/valueType :db.type/string
-    :db/cardinality :db.cardinality/one
-    :db/fulltext true
-    :db/doc "A article's body"
-    :db.install/_attribute :db.part/db}
-
-   ;; category
-   {:db/id #db/id[:db.part/db]
-    :db/ident :article/category
-    :db/valueType :db.type/ref
-    :db/cardinality :db.cardinality/one
-    :db/doc "A article category enum value"
-    :db.install/_attribute :db.part/db}
-   
-   ])
+  [(uuid-fact-schema :article/guid false "A article's guid" false)
+   (string-fact-schema :article/title true "A article's title" false)
+   (string-fact-schema :article/body true "A article's body" false)
+   (enum-fact-schema :article/category false "A article's category" false)])
 
 (def category-enum-schema
-  [[:db/add #db/id[:db.part/user] :db/ident :category/tech]
-   [:db/add #db/id[:db.part/user] :db/ident :category/business]
-   [:db/add #db/id[:db.part/user] :db/ident :category/fun]])
-
+  [(enum-value-schema :category/tech)
+   (enum-value-schema :category/business)
+   (enum-value-schema :category/fun)])
 
 (defn all []
   (concat 
