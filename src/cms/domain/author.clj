@@ -39,4 +39,10 @@
     (->> [:db/add (:db/id author) :author/articles (:db/id a)]
          vector
          (api/transact db/CONN)
-         deref)))
+         deref)
+    a))
+
+(defn add-article-with-tags [author title body category tag-names]
+  (let [article (add-article author title body category)]
+    (doseq [t tag-names]
+      (ar/add-tag article t))))

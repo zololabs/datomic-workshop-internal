@@ -3,6 +3,8 @@
             [datomic.api :as api]))
 
 (defn create [name]
+  (when (#{"fun" "business" "tech"} name)
+    (throw (RuntimeException. "Invalid Tag Name")))
   (let [tid (api/tempid :db.part/user)
         t {:tag/name name
            :db/id tid}
