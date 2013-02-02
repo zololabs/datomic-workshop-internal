@@ -71,3 +71,14 @@
                 db search-string [:article/body :article/title])
          (map #(api/entity db (first %)))
          (map api/touch))))
+
+(defn titles-starting-with [string]
+  (let [db (api/db db/CONN)]
+    (->> (api/q '[:find ?a
+                  :in $ ?string
+                  :where
+                  [?a :article/title ?t]
+                  [(.startsWith ?t ?string)]]
+                db string)
+         (map #(api/entity db (first %)))
+         (map api/touch))))
