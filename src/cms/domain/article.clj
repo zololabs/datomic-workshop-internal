@@ -61,6 +61,35 @@
          (map #(api/entity db (first %)))
          (map api/touch))))
 
+(defn find-by-tags-rules [tag-names]
+  (let [db (api/db db/CONN)
+        rules '[[[tag-name? ?t ?name]
+                 [?t :tag/name ?name]]]]
+    (->> (api/q '[:find ?a
+                  :in $ [?n ...] %
+                  :where
+                  [?a :article/tags ?t]
+                  (tag-name? ?t ?n)]
+                db tag-names rules)
+         (map #(api/entity db (first %)))
+         (map api/touch))))
+
+(defn category-articles []
+  (let [db (api/db db/CONN)
+        rules '[[[category? ?a ?c]
+                 [?a :article/category ?c]]
+                [[fun? ?a]
+                 (category? ?a :category/fun)]
+                [[tech? ?a]
+                 (category? ?a :category/tech)]]]
+    (->> (api/q '[:find ?a
+                  :in $  %
+                  :where
+                  [?a :article/title]
+                  (tech? ?a)]
+                db rules)
+         (map #(api/entity db (first %)))
+         (map api/touch))))
 
 (defn search [search-string]
   (let [db (api/db db/CONN)]
