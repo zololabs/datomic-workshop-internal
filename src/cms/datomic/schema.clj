@@ -76,9 +76,27 @@
     :db/doc "A tag's name"
     :db.install/_attribute :db.part/db}])
 
+(def fn-schema
+  [{:db/id #db/id [:db.part/user]
+    :db/ident :check-name-length
+    :db/fn #db/fn {:lang "clojure"
+                   :params [a]
+                   :code "(if (> (count (:author/name a)) 2) a (throw (RuntimeException. \"Name too short!\")))"}}
+
+
+   {:db/id #db/id [:db.part/user]
+    :db/ident :create-author
+    :db/fn #db/fn {:lang "clojure"
+                   :params [db n e]
+                   :code "(let [author {:author/name n :author/email e :db/id (datomic.api/tempid :db.part/user)}
+                        validate-author (:db/fn (datomic.api/entity db :check-name-length))]
+                    [(validate-author author)])"}}
+   ])
+
 (defn all []
   (concat 
    author-schema
    tag-schema
    article-schema
-   category-enum-schema))
+   category-enum-schema
+   fn-schema))
