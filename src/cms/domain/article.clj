@@ -60,3 +60,14 @@
                 db tag-names)
          (map #(api/entity db (first %)))
          (map api/touch))))
+
+
+(defn search [search-string]
+  (let [db (api/db db/CONN)]
+    (->> (api/q '[:find ?a
+                  :in $ ?s [?att ...]
+                  :where
+                  [(fulltext $ ?att ?s) [[?a]]]]
+                db search-string [:article/body :article/title])
+         (map #(api/entity db (first %)))
+         (map api/touch))))
