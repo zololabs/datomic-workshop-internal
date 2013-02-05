@@ -1,10 +1,10 @@
 # datomic-workshop
 
-A Clojure library designed to ... well, that part is up to you.
+The Datomic Workshop Project.
 
 ## Usage
 
-FIXME
+Iterations are tagged. 
 
 ## License
 
